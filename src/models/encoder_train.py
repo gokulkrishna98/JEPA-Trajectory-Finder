@@ -126,7 +126,7 @@ def train_model(dataloader, model, epochs, device, transformation1, transformati
         for batch in dataloader:
             state, _ = batch
             state = state.to(device)
-            for i in range(1):
+            for i in range(state.size(1)):
                 img = state[:, i, :, :, :]
                 img = torch.cat([img, img[:, 1:2, :, :]], dim=1)
 
