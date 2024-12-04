@@ -79,7 +79,7 @@ def criterion(x, y, invar = 25, mu = 25, nu = 1, epsilon = 1e-4):
     loss = invar*invar_loss + mu*var_loss + nu*cov_loss
     return loss
 
-def compute_mean_and_std(dataloader):
+def compute_mean_and_std(dataloader, is_channelsize3 = True):
     num_channels = 2  # Assuming you have 2 channels
     pixel_sum = [0] * num_channels
     pixel_squared_sum = [0] * num_channels
@@ -107,8 +107,10 @@ def compute_mean_and_std(dataloader):
     # print(f"Std per channel: {std}")
     
     # Adding a 3rd dimension
-    mean.append(mean[1])
-    std.append(std[1])
+    if is_channelsize3:
+        mean.append(mean[1])
+        std.append(std[1])
+
     return mean, std
 
 def save_model(model, epoch, save_path="checkpoints", file_name="encoder_"):
@@ -154,6 +156,14 @@ def train_model(dataloader, model, epochs, device, transformation1, transformati
     print("Training completed.")
     return model
 
+def get_encoder_loss(model, img, transformation1, transformation2, criterion):
+    x0 = transformation1(img)
+    x1 = transformation2(img)
+    _, z0 = model(state=x0)
+    _, z1 = model(state=x1)
+
+    loss = criterion(z0, z1)
+    return loss
 
 if __name__ == "__main__":
     print("Training main function")

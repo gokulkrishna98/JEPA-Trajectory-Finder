@@ -23,9 +23,16 @@ class TrajectoryDataset(Dataset):
                  states_filename, 
                  actions_filename, 
                  s_transform=None, 
-                 a_transform=None):
+                 a_transform=None,
+                 length=None):
         self.states = np.load(f"{data_dir}/{states_filename}", mmap_mode="r")
         self.actions = np.load(f"{data_dir}/{actions_filename}")
+        if length is None:
+            length = len(self.states)
+        
+        self.states = self.states[:length]
+        self.actions = self.actions[:length]
+
         self.state_transform = s_transform
         self.action_transform = a_transform
     
