@@ -1,2 +1,4 @@
 src/dataset/states.npy
 src/dataset/actions.npy
+src/models/checkpoints
+src/models/__pycache__

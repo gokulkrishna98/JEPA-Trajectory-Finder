@@ -111,10 +111,10 @@ def compute_mean_and_std(dataloader):
     std.append(std[1])
     return mean, std
 
-def save_model(model, epoch, save_path="checkpoints"):
+def save_model(model, epoch, save_path="checkpoints", file_name="encoder_"):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    save_file = os.path.join(save_path, f"enoder_{epoch}.pth")
+    save_file = os.path.join(save_path, f"{file_name}_{epoch}.pth")
     torch.save(model.state_dict(), save_file)
     print(f"Model saved to {save_file}")
 
