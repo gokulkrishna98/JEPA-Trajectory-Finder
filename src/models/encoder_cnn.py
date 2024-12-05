@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as tr
 
 from dataset import TrajectoryDataset
-from encoder import Encoder
+from encoder import Encoder, SimpleCNN
 
 def get_device():
     """Check for GPU availability."""
@@ -113,7 +113,7 @@ def compute_mean_and_std(dataloader, is_channelsize3 = True):
 
     return mean, std
 
-def save_model(model, epoch, save_path="checkpoints", file_name="encoder_"):
+def save_model(model, epoch, save_path="checkpoints_cnn", file_name="encoder_"):
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     save_file = os.path.join(save_path, f"{file_name}_{epoch}.pth")
@@ -130,7 +130,7 @@ def train_model(dataloader, model, epochs, device, transformation1, transformati
             state = state.to(device)
             for i in range(state.size(1)):
                 img = state[:, i, :, :, :]
-                img = torch.cat([img, img[:, 1:2, :, :]], dim=1)
+                # img = torch.cat([img, img[:, 1:2, :, :]], dim=1)
 
                 x0 = transformation1(img)
                 x1 = transformation2(img)
@@ -147,7 +147,7 @@ def train_model(dataloader, model, epochs, device, transformation1, transformati
                 optimizer.step()
                 optimizer.zero_grad()
                 # print(f"batch: {ind}")
-                avg_loss = total_loss / len(dataloader)
+                avg_loss = total_loss / (len(dataloader)*state.size(1))
                 # ind = ind + 1
         # Save model checkpoint
         if epoch % step == 0:
@@ -170,27 +170,27 @@ if __name__ == "__main__":
     device = get_device()
 
     dataset = TrajectoryDataset(
-        data_dir = "../dataset",
-        states_filename = "states1.npy",
-        actions_filename = "actions1.npy",
+        data_dir = "/scratch/DL24FA/probe_normal/train",
+        states_filename = "states.npy",
+        actions_filename = "actions.npy",
         s_transform = None,
         a_transform = None,
     )
 
     dataloader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-    resnet = torchvision.models.resnet18()
-    backbone = nn.Sequential(*list(resnet.children())[:-1])
-    
-    model = Encoder(backbone).to(device)
+    print("Dataset loaded successfully")
+
+    enc = SimpleCNN(512, 2).to(device)
+    model = Encoder(enc).to(device)
 
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum= 0.9, weight_decay=1.5e-4)
 
-    mean, std = compute_mean_and_std(dataloader)
+    mean, std = compute_mean_and_std(dataloader, is_channelsize3=False)
 
     transformation1, transformation2  = get_byol_transforms(mean, std)
 
     trained_model = train_model(dataloader, model, 1, device, transformation1, transformation2)
 
     # Optionally, save the final model
-    save_model(trained_model, "encoder_final")
+    save_model(trained_model, "encoder_cnn_final")
