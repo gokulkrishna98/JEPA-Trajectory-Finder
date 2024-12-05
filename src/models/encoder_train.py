@@ -162,7 +162,7 @@ def get_encoder_loss(model, img, transformation1, transformation2, criterion):
     _, z0 = model(state=x0)
     _, z1 = model(state=x1)
 
-    loss = criterion(z0, z1)
+    loss = criterion(z0[1], z1[1])
     return loss
 
 if __name__ == "__main__":
