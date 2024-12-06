@@ -16,7 +16,7 @@ class Encoder(nn.Module):
     def forward(self, x):
         x = self.backbone(x).flatten(start_dim=1)
         z = self.projection_head(x)
-        return z
+        return x, z
     
 
 class SimpleCNN(nn.Module):
