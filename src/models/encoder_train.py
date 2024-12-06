@@ -159,10 +159,10 @@ def train_model(dataloader, model, epochs, device, transformation1, transformati
 def get_encoder_loss(model, img, transformation1, transformation2, criterion):
     x0 = transformation1(img)
     x1 = transformation2(img)
-    _, z0 = model(state=x0)
-    _, z1 = model(state=x1)
+    _, (_, z0) = model(state=x0)
+    _, (_, z1) = model(state=x1)
 
-    loss = criterion(z0[1], z1[1])
+    loss = criterion(z0, z1)
     return loss
 
 if __name__ == "__main__":
