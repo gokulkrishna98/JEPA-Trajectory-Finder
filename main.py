@@ -1,7 +1,7 @@
 from dataset import create_wall_dataloader
 from evaluator import ProbingEvaluator
 import torch
-from models import MockModel
+from models import Encoder, Predictor, SimpleCNN, JEPAModel
 import glob
 
 
@@ -44,7 +44,27 @@ def load_data(device):
 def load_model():
     """Load or initialize the model."""
     # TODO: Replace MockModel with your trained model
-    model = MockModel()
+    """Load the trained Encoder and Predictor models."""
+    device = get_device()
+
+    # Initialize the encoder with the same architecture used in training
+    encoder_cnn = SimpleCNN(embed_size=512, input_channel=2)  # Adjust input_channel as per your data
+    encoder = Encoder(encoder_cnn).to(device)
+
+    # Load the encoder weights
+    encoder_path = "encoder.pth"
+    encoder.load_state_dict(torch.load(encoder_path, map_location=device))
+    encoder.eval()  # Set encoder to evaluation mode
+
+    # Initialize the predictor with the same architecture used in training
+    predictor = Predictor(input_size=2, hidden_size=1024).to(device)
+
+    # Load the predictor weights
+    predictor_path = "predictor.pth"
+    predictor.load_state_dict(torch.load(predictor_path, map_location=device))
+    predictor.eval()  # Set predictor to evaluation mode
+
+    model = JEPAModel(encoder, predictor)
     return model
 
 
