@@ -138,7 +138,7 @@ class JEPAModel(nn.Module):
 
         result = torch.empty((B, L, D))
         for i in range(L):
-            sy_hat, _ = self.forward(actions[:, i, :], states[:, i+1, :, :, :])
+            sy_hat, _ = self.forward(actions[:, i, :], state=None)
             result[:, i, :] = sy_hat
 
         return result
