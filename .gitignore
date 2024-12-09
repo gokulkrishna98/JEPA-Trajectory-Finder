@@ -3,3 +3,4 @@ src/dataset/actions.npy
 src/models/checkpoints
 src/models/__pycache__
 .vscode/settings.json
+src/models/test_model.ipynb
